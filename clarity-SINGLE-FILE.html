@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#0b0f14" />
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAYAAAA9zQYyAAAEiElEQVR4nO3dTU4jRwCG4cJCSCgLNFIWs59NbpHj5Ew5Tm6Ra7BCYjNZRB4Z8E93dVW3+6vn2Y4G2vjV57JB9sNvL7//LBt7en7Z+hJo4P3tdetLKI9bfFMBZ/p8v24R+GpBi3g8p/f5WnF3DVrEHK0Vd5eghcw1xz56hH1o/QXFzFQ9Wmm20EKmRuu1brLQYmapVg0tWmgh01KLta5eaDHTy5K2qoIWM73VNjY7aDGzlprWZgUtZtY2t7nJQYuZrcxpb1LQYmZrUxu8GbSYuRdTWmz+q2/Y0tWgrTP35laTF4MWM/fqWpuOHEQ5G7R15t5davRL0GJmL8616shBlA9BW2f25nOzFpoogibKr6AdN9ir03YtNFEETZRDKY4b7N+xYQtNFEETRdBEOTg/k+Lp+cVCk0XQRNnkIylG8cc/f138t3///HvFKxnHw7fvPzb/0KAk1yK+RNztOHI0VBPzkv/HVxa6gZZBWutlLPRCrdfVWi8j6AV6xSfqeoImiqAr9V5RK11H0BXWik3U8wmaKIImiqBnWvsY4Ngxj6CJImiiCJoogiaKoIkiaKIImiiCJoqgiSJoogiaKIImiqCJImiiCJoogiaKoIkiaKIImiiCJoqgiSJoogiaKIImiqCJImiiCJoogiaKoIkiaKIImiiCJoqgZ1r7gzF9EOc8giaKoIki6AprHQMcN+YTdKXesYm5jqCJIugFeq2oda4n6IVaxyfmZR6+ff/xc+uLSLHkQzKF3IaFbqg2SjG3Y6E7urbYIu5D0ERx5CCKoIkiaKIImiiCJoqgiSJoogiaKIImiqCJImiiCJoogiaKoIkiaKIImiiCJoqgiSJoogiaKIImiqCJImiiCJooj1tfQC+33mduhHcuGvFnYKGJImiixAZ96+F0yVvf7sGIx41SgoOeIjXq1Ns1xdBBl5J356fdnrni3053zh2854fhUW7nLfFBlzJ/tfZ0hyffthpDBF1K/UNxTQBTv1dtXGvelr0ZJuhS2pwvz0XR6tx6Kbhe151oqKBLGfNJ0ygxlzLgqxwj3bmljHd7h1voU8lrPVrIR0MHfZQU9qghHwn6xJ7DHj3kI0GfsaewhfyRoG+4x7hFfJmgJ9o6bBFPM9zLdrW2DErM0wl6hi3CEvM8gp5pzcDEPJ+gK6wRmpjreFLYQO8/TmI6QXfQ+89HuUzQRHGGJoqgiSJoogiaKIImiqCJcnh/e936GqCJ97dXC00WQRNF0EQ5lPL/2QP27NiwhSaKoInyK2jHDvbqtF0LTRRBE+VD0I4d7M3nZi00Ub4EbaXZi3Otnl1oUXPvLjXqyEGUi0Fbae7VtTavLrSouTe3mnTkIMrNoK0092JKi5MWWtRsbWqDk48comYrc9qbdYYWNWub29zsJ4WiZi01rVW9yiFqeqttrPplO1HTy5K2Hlt846fnlyVfBkopbUayyS9WrDVLtWpo0UKfstbUaD2GzX/1ba2ZqkcrzRb6lLXmmp6j1yXoo9MLF/fY1nrk7hr0KXGPZ4vj52pBn/p8QwWe4R6eP/0Hx/hIXrgm3joAAAAASUVORK5CYII=" />
+<meta name="apple-mobile-web-app-title" content="Clarity" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<title>Clarity: Voice Navigation for NITK Surathkal</title>
+<meta name="description" content="Clarity: hands-free, voice-first campus navigation for blind and low-vision users at NITK Surathkal." />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#111823; --panel2:#0e141d; --border:#1f2a3a;
+    --text:#e8eef7; --muted:#8fa1b8; --accent:#39d98a; --accent-dk:#0f7a4b;
+    --danger:#ff6b6b; --amber:#ffc24b; --blue:#4da3ff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent}
+  html,body{height:100%; overscroll-behavior:none}
+  body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--text); -webkit-text-size-adjust:100%; touch-action:manipulation}
+  .app{display:flex; flex-direction:column; height:100dvh; overflow:hidden}
+  @media(min-width:900px){ .app{flex-direction:row} }
+  .sidebar{order:2; display:flex; flex-direction:column; height:62%; border-top:1px solid var(--border); background:var(--panel); min-height:0}
+  @media(min-width:900px){ .sidebar{order:1; height:100%; width:470px; min-width:470px; border-top:0; border-right:1px solid var(--border)} }
+  .mapwrap{order:1; flex:1; position:relative; min-height:120px}
+  @media(min-width:900px){ .mapwrap{order:2} }
+  #map{position:absolute; inset:0; background:#0d1117}
+  .maplabel{position:absolute; z-index:800; top:calc(10px + env(safe-area-inset-top)); left:50px; background:rgba(11,15,20,.85); border:1px solid var(--border); color:var(--muted); font-size:12px; padding:4px 10px; border-radius:8px}
+
+  header.brand{display:flex; align-items:center; gap:12px; padding:calc(14px + env(safe-area-inset-top)) 16px 14px; border-bottom:1px solid var(--border); flex-shrink:0}
+  .logo{width:40px; height:40px; border-radius:10px; background:var(--accent); display:flex; align-items:center; justify-content:center; color:#04120a; flex-shrink:0}
+  header.brand h1{font-size:19px; line-height:1.1}
+  header.brand p{font-size:12px; color:var(--muted)}
+
+  .content{flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:16px 16px calc(16px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:14px}
+  @media(max-width:400px){ .content{padding-left:12px; padding-right:12px} header.brand{padding-left:12px; padding-right:12px} }
+
+  .card{background:var(--panel2); border:1px solid var(--border); border-radius:14px; padding:14px 16px}
+  .rowline{display:flex; align-items:center; justify-content:space-between; gap:10px}
+  .lbl{font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+
+  /* wake toggle */
+  .switch{position:relative; width:52px; height:28px; flex-shrink:0}
+  .switch input{opacity:0; width:100%; height:100%; position:absolute; cursor:pointer; z-index:2}
+  .knob{position:absolute; inset:0; background:#2a3648; border-radius:999px; transition:.2s}
+  .knob::after{content:""; position:absolute; top:3px; left:3px; width:22px; height:22px; border-radius:50%; background:#cfd8e6; transition:.2s}
+  .switch input:checked + .knob{background:var(--accent-dk)}
+  .switch input:checked + .knob::after{transform:translateX(24px); background:var(--accent)}
+  .switch input:focus-visible + .knob{outline:3px solid var(--blue)}
+
+  /* mic */
+  .micarea{display:flex; flex-direction:column; align-items:center; gap:10px; padding:10px 0 4px}
+  .micbtn{width:112px; height:112px; max-width:28vw; max-height:28vw; min-width:84px; min-height:84px; border-radius:50%; border:3px solid var(--accent-dk); background:radial-gradient(circle at 35% 30%, #16321f, #0c1a12); color:var(--accent); cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .12s, box-shadow .2s; touch-action:manipulation}
+  .micbtn:hover{transform:scale(1.04)}
+  .micbtn:focus-visible{outline:4px solid var(--blue); outline-offset:3px}
+  .micbtn.listening{border-color:var(--accent); box-shadow:0 0 0 8px rgba(57,217,138,.15), 0 0 34px rgba(57,217,138,.5); animation:pulse 1.2s infinite}
+  .micbtn.speaking{border-color:var(--blue); color:var(--blue); box-shadow:0 0 24px rgba(77,163,255,.4)}
+  .micbtn.thinking{border-color:var(--amber); color:var(--amber)}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  .status{font-size:15px; font-weight:600; min-height:22px; text-align:center}
+  .transcript{font-size:13px; color:var(--muted); text-align:center; min-height:18px; font-style:italic}
+  .hint{font-size:12px; color:var(--muted); text-align:center; line-height:1.6}
+  .hint b{color:var(--text); font-weight:600}
+
+  /* route */
+  .routehead{display:flex; align-items:baseline; gap:8px; flex-wrap:wrap}
+  .routehead .names{font-size:15px; font-weight:700}
+  .routehead .meta{font-size:13px; color:var(--accent)}
+  .stepbox{margin-top:10px; background:#0a1a12; border:1px solid var(--accent-dk); border-radius:12px; padding:14px}
+  .stepbox .n{font-size:11px; color:var(--accent); letter-spacing:.06em; text-transform:uppercase}
+  .stepbox .t{font-size:17px; font-weight:600; line-height:1.45; margin-top:4px}
+  .btnrow{display:flex; gap:8px; margin-top:12px; flex-wrap:wrap}
+  button.act{flex:1; min-width:80px; min-height:44px; padding:12px 10px; font-size:14px; font-weight:600; border-radius:10px; border:1px solid var(--border); background:#1a2434; color:var(--text); cursor:pointer; touch-action:manipulation}
+  button.act:hover{background:#223049}
+  button.act:focus-visible{outline:3px solid var(--blue)}
+  button.act.primary{background:var(--accent-dk); border-color:var(--accent-dk)}
+  button.act.primary:hover{background:#12905a}
+  button.act.stop{background:#3a1520; border-color:#5b2030; color:#ff9c9c}
+  .steps-all{margin-top:10px; display:none}
+  .steps-all.open{display:block}
+  .steps-all ol{margin-left:20px; display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--muted)}
+  .steps-all li.cur{color:var(--text); font-weight:600}
+  .linky{background:none; border:none; color:var(--blue); font-size:12px; cursor:pointer; padding:4px 0}
+
+  /* manual */
+  details.manual summary{cursor:pointer; font-size:13px; color:var(--muted); padding:2px 0}
+  .selrow{display:flex; flex-direction:column; gap:8px; margin-top:10px}
+  select{width:100%; padding:11px 12px; border-radius:10px; background:#0b111a; color:var(--text); border:1px solid var(--border); font-size:16px}
+  .haptic-note{font-size:11px; color:var(--muted); margin-top:6px; line-height:1.5}
+  .live-pill{display:inline-flex; align-items:center; gap:6px; font-size:12px; padding:4px 10px; border-radius:999px; background:#0a1a12; border:1px solid var(--accent-dk); color:var(--accent)}
+  .live-pill .dot{width:8px; height:8px; border-radius:50%; background:var(--accent); animation:pulse 1s infinite}
+  .kbd{font-size:11px; color:var(--muted); text-align:center; padding:6px 0 12px}
+  .kbd kbd{background:#1a2434; border:1px solid var(--border); border-radius:5px; padding:1px 6px; font-family:inherit}
+  .err{color:var(--danger); font-size:13px; text-align:center; min-height:0}
+
+  /* setup + permissions */
+  .banner{border-radius:12px; padding:13px 15px; font-size:13.5px; margin-bottom:14px; line-height:1.55}
+  .banner.bad{background:#1c1214; border:1px solid #5c2b2b; color:#e8c9c9}
+  .banner.good{background:#111d14; border:1px solid #2b5c34; color:#c9e8cf}
+  .pchip{font-size:11.5px; padding:4px 10px; border-radius:999px; border:1px solid var(--border); background:#11141b; color:var(--muted)}
+  .pchip.ok{color:var(--accent); border-color:var(--accent-dk); background:#0a1a12}
+  .pchip.bad{color:var(--danger); border-color:#5b2030; background:#1c1214}
+  .pchip.warn{color:var(--amber); border-color:#5c4a1e; background:#1f1a10}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="sidebar">
+    <header class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+      </span>
+      <div>
+        <h1>Clarity</h1>
+        <p>Voice navigation for the blind, NITK Surathkal</p>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- Blocked-context gate. Browsers refuse to show a microphone prompt inside
+           an iframe or on plain http, so users just get nothing. Name it and give
+           them a way out instead of failing silently. -->
+      <div class="banner bad" id="ctxBannerTop" hidden>
+        <span id="ctxBannerMsg"></span>
+        <button class="act primary" id="btnNewTab" style="width:100%; margin-top:10px">Open Clarity in a new tab</button>
+      </div>
+
+      <!-- Install + permissions -->
+      <div class="card" id="setupCard">
+        <div class="lbl" style="margin-bottom:10px">Set up</div>
+        <div class="btnrow" style="margin-top:0">
+          <button class="act" id="btnInstall" hidden>Install app</button>
+          <button class="act primary" id="btnEnableMic">Enable microphone</button>
+          <button class="act" id="btnEnableLoc">Enable location</button>
+        </div>
+        <div id="permState" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:11px"></div>
+        <div class="note" id="installNote" style="margin-top:10px"></div>
+        <div class="note" id="iosInstall" hidden style="margin-top:8px">
+          On iPhone: tap <b>Share</b>, then <b>Add to Home Screen</b>. Clarity then opens
+          full screen like a normal app and remembers your microphone permission.
+        </div>
+      </div>
+
+      <!-- Wake word -->
+      <div class="card">
+        <div class="rowline">
+          <div>
+            <div class="lbl">Wake word</div>
+            <div id="wakeDesc" style="font-size:13px; margin-top:3px">Say <b>“Clarity”</b> anytime to start hands-free</div>
+          </div>
+          <label class="switch" aria-label="Toggle wake word listening">
+            <input type="checkbox" id="wakeToggle" />
+            <span class="knob"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Haptic (vibration) feedback -->
+      <div class="card" id="hapticCard">
+        <div class="rowline">
+          <div>
+            <div class="lbl">Haptic feedback</div>
+            <div id="hapticDesc" style="font-size:13px; margin-top:3px">Feel a vibration pattern for turns, arrival and errors, useful with sound off</div>
+          </div>
+          <label class="switch" aria-label="Toggle vibration feedback">
+            <input type="checkbox" id="hapticToggle" checked />
+            <span class="knob"></span>
+          </label>
+        </div>
+        <div class="haptic-note" id="hapticNote"></div>
+      </div>
+
+      <!-- Mic + status -->
+      <div class="micarea">
+        <button id="micBtn" class="micbtn" aria-label="Tap to speak a command">
+          <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v1a7 7 0 0 1-14 0v-1"/><line x1="12" y1="18" x2="12" y2="22"/></svg>
+        </button>
+        <div class="status" id="status" role="status" aria-live="assertive">Tap to speak</div>
+        <div class="transcript" id="transcript" aria-live="polite"></div>
+        <div class="err" id="err" aria-live="polite"></div>
+        <div class="hint">Try: <b>“Take me to SJA”</b> · <b>“Mess to library”</b> · <b>“Where am I?”</b> · <b>“Help”</b></div>
+        <form id="typeForm" style="display:flex; gap:8px; width:100%; max-width:420px" aria-label="Type a command instead of speaking">
+          <input id="typeInput" type="text" placeholder="Or type: take me to sja" autocomplete="off"
+                 style="flex:1; padding:11px 12px; border-radius:10px; background:#0b111a; color:var(--text); border:1px solid var(--border); font-size:16px; min-height:44px" />
+          <button class="act primary" type="submit" style="flex:0 0 auto; min-width:60px">Go</button>
+        </form>
+      </div>
+
+      <!-- Route panel -->
+      <div class="card" id="routeCard" hidden>
+        <div class="routehead">
+          <span class="names" id="routeNames"></span>
+          <span class="meta" id="routeMeta"></span>
+          <span class="live-pill" id="livePill" hidden><span class="dot"></span>LIVE GPS GUIDANCE</span>
+        </div>
+        <div class="stepbox">
+          <div class="n" id="stepNum"></div>
+          <!-- aria-live is OFF on purpose: the app already announces steps through
+               speechSynthesis. Leaving it "assertive" makes a screen reader read the
+               step a second time, on top of Clarity's own voice - two voices talking
+               over each other. Set it back to "polite" only if you drop the TTS. -->
+          <div class="t" id="stepText" aria-live="off"></div>
+        </div>
+        <div class="btnrow">
+          <button class="act" id="btnRepeat">Repeat</button>
+          <button class="act primary" id="btnNext">Next</button>
+          <button class="act primary" id="btnLive">Start GPS</button>
+          <button class="act stop" id="btnStop">Stop</button>
+        </div>
+        <button class="linky" id="btnAllSteps">Show all steps ▾</button>
+        <div class="steps-all" id="allSteps"><ol id="stepsList"></ol></div>
+      </div>
+
+      <!-- Manual controls -->
+      <div class="card">
+        <details class="manual">
+          <summary>Manual controls (for sighted helpers)</summary>
+          <div class="selrow">
+            <label class="lbl" for="fromSel">From</label>
+            <select id="fromSel"><option value="">My GPS location</option></select>
+            <label class="lbl" for="toSel">To</label>
+            <select id="toSel"><option value="">Choose destination…</option></select>
+            <button class="act primary" id="btnGo" style="margin-top:4px">Get route</button>
+          </div>
+        </details>
+      </div>
+
+      <div class="kbd"><kbd>Space</kbd> speak · <kbd>N</kbd> next · <kbd>R</kbd> repeat · <kbd>Esc</kbd> stop</div>
+    </div>
+  </div>
+
+  <div class="mapwrap">
+    <div id="map" role="img" aria-label="Campus map for sighted helpers"></div>
+    <div class="maplabel">Visual map (for sighted helpers)</div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   CLARITY: voice-first campus navigation for blind users
+   Fixes vs previous build:
+   1. Real OpenStreetMap coordinates for every campus place
+   2. Real pedestrian turn-by-turn routing via OSRM (like Google Maps)
+   3. Robust on-device voice: wake word "Clarity", command capture,
+      spoken confirmation, live GPS guidance with auto step advance
+   ============================================================ */
+
+/* -------------------- 1. PLACES (verified via OpenStreetMap) -------------------- */
+const PLACES = [
+ {id:"main-gate",  name:"Main Gate",                          lat:13.010979, lng:74.793171, aliases:["gate","main entrance","entrance","front gate","nh66 gate"]},
+ {id:"main-building",name:"NITK Main Building",               lat:13.010756, lng:74.794364, aliases:["main building","admin","administration","admin block","office","main office","clock tower"]},
+ {id:"library",    name:"NITK Central Library",               lat:13.009956, lng:74.794230, aliases:["library","central library","lib","reading room","e library","elibrary"]},
+ {id:"sja",        name:"Silver Jubilee Auditorium",          lat:13.008552, lng:74.795714, aliases:["sja","audi","auditorium","silver jubilee","seminar hall","convocation hall","s j a"]},
+ {id:"mega-mess",  name:"Mega Mess (Chaitanya)",              lat:13.007497, lng:74.795291, aliases:["mess","mega mess","chaitanya","dining hall","dining","lunch","dinner","breakfast","food"]},
+ {id:"food-court", name:"Food Court",                         lat:13.008426, lng:74.795181, aliases:["food court","fc","canteen","cafeteria"]},
+ {id:"health",     name:"Health Care Centre",                 lat:13.009485, lng:74.796188, aliases:["health centre","health center","hospital","clinic","medical","doctor","dispensary","infirmary"]},
+ {id:"lhc",        name:"Lecture Hall Complex B",             lat:13.009377, lng:74.794455, aliases:["lhc","lecture hall","lecture hall complex","classrooms","classes","lhc b"]},
+ {id:"lhc-d",      name:"Lecture Hall Complex D",             lat:13.009693, lng:74.793402, aliases:["lhc d","lecture hall d"]},
+ {id:"ccc",        name:"Central Computer Centre",            lat:13.009499, lng:74.795813, aliases:["computer centre","computer center","ccc","cse","computer science","cs department","comps"]},
+ {id:"macs",       name:"Dept. of Mathematics and Computing", lat:13.009574, lng:74.794280, aliases:["maths","mathematics","macs","maths department"]},
+ {id:"ece",        name:"Dept. of Electronics and Communication", lat:13.011483, lng:74.792160, aliases:["ece","electronics","e c","electronics department"]},
+ {id:"eee",        name:"Dept. of Electrical Engineering",    lat:13.011079, lng:74.792198, aliases:["eee","electrical","electrical department","triple e"]},
+ {id:"civil",      name:"Dept. of Civil Engineering",         lat:13.012131, lng:74.793720, aliases:["civil","civil department","civil block"]},
+ {id:"mech",       name:"Dept. of Mechanical Engineering",    lat:13.011956, lng:74.795914, aliases:["mechanical","mech","mechanical department","workshop"]},
+ {id:"chemical",   name:"Dept. of Chemical Engineering",      lat:13.011202, lng:74.796210, aliases:["chemical","chem","chemical department"]},
+ {id:"mining",     name:"Dept. of Mining Engineering",        lat:13.011802, lng:74.793931, aliases:["mining","mining department"]},
+ {id:"physics",    name:"Chemistry and Physics Departments",  lat:13.008759, lng:74.794755, aliases:["physics","chemistry","science block"]},
+ {id:"sohsm",      name:"School of Humanities and Management",lat:13.008906, lng:74.794595, aliases:["humanities","management","sohsm","mba"]},
+ {id:"sbi",        name:"SBI Bank and ATM",                   lat:13.008898, lng:74.794093, aliases:["sbi","bank","atm","state bank","money"]},
+ {id:"post",       name:"Post Office",                        lat:13.008818, lng:74.793416, aliases:["post office","post","speed post","courier"]},
+ {id:"gym",        name:"NITK Gym",                           lat:13.007127, lng:74.794717, aliases:["gym","gymnasium","fitness"]},
+ {id:"sports",     name:"New Sports Complex",                 lat:13.009862, lng:74.798251, aliases:["sports complex","sports","stadium","ground","playground"]},
+ {id:"mega-t1",    name:"Mega Hostel Tower 1 (Everest)",      lat:13.007744, lng:74.794808, aliases:["mega tower 1","everest","boys hostel","mega hostel","mega boys"]},
+ {id:"mega-t2",    name:"Mega Hostel Tower 2 (Himalaya)",     lat:13.006896, lng:74.795227, aliases:["mega tower 2","himalaya"]},
+ {id:"mega-t3",    name:"Mega Hostel Tower 3 (Kailash)",      lat:13.006347, lng:74.794452, aliases:["mega tower 3","kailash"]},
+ {id:"girls-hostel",name:"Girls Hostel (New)",                lat:13.012699, lng:74.796019, aliases:["girls hostel","ladies hostel","womens hostel","gh"]},
+ {id:"kaveri",     name:"GH-2 Kaveri Hostel",                 lat:13.012898, lng:74.794941, aliases:["kaveri","gh 2"]},
+ {id:"night-canteen",name:"Night Canteen",                    lat:13.013712, lng:74.795103, aliases:["night canteen","nc","late night food"]},
+ {id:"amul",       name:"Amul EastSide",                      lat:13.008989, lng:74.796734, aliases:["amul","ice cream","east side"]},
+ {id:"nescafe",    name:"Nescafe",                            lat:13.011634, lng:74.791830, aliases:["nescafe","coffee","cafe"]},
+ {id:"guest-house",name:"C. V. Raman Guest House",            lat:13.012904, lng:74.791866, aliases:["guest house","cv raman","visitor house"]},
+ {id:"directors",  name:"Director's Building",                lat:13.015651, lng:74.795213, aliases:["director","directors office","directors building"]},
+ {id:"pool",       name:"NITK Swimming Pool",                 lat:13.011377, lng:74.797365, aliases:["swimming pool","pool","swim","swimming"]},
+];
+const CAMPUS_CENTER = [13.0100, 74.7945];
+
+/* -------------------- 2. FUZZY PLACE SEARCH -------------------- */
+const STOP = new Set(["the","a","an","to","at","in","of","go","take","me","please","navigate","walk","from","and","dept","department","block","building","hall","centre","center","campus","nitk"]);
+const norm = s => s.toLowerCase().replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim();
+function lev(a,b){ if(a===b) return 0; const m=a.length,n=b.length; if(!m) return n; if(!n) return m;
+  let row=Array.from({length:n+1},(_,i)=>i);
+  for(let i=1;i<=m;i++){ let prev=row[0]; row[0]=i;
+    for(let j=1;j<=n;j++){ const t=row[j]; row[j]=Math.min(row[j]+1,row[j-1]+1,prev+(a[i-1]!==b[j-1]?1:0)); prev=t; } }
+  return row[n]; }
+function sim(a,b){ const L=Math.max(a.length,b.length); return L? 1-lev(a,b)/L : 1; }
+
+function findPlace(query){
+  const q = norm(query); if(!q) return null;
+  const qTokens = q.split(" ").filter(t=>t && !STOP.has(t));
+  let best=null, bestScore=0;
+  for(const p of PLACES){
+    const keys=[norm(p.name), ...p.aliases.map(norm)];
+    let s=0;
+    for(const k of keys){
+      if(k===q){ s=1000; break; }
+      if(k.startsWith(q)||q.startsWith(k)) s=Math.max(s, 650-Math.abs(k.length-q.length));
+      else if(q.length>=3 && k.includes(q)) s=Math.max(s,480);
+      /* ORIGINAL BUG: a flat 470 meant a short alias matched as strongly as a
+         full name. "the food court" contains the alias "food" (Mega Mess) AND the
+         name "food court" (Food Court) - both scored 470, and Mega Mess came
+         first in the list, so asking for the food court routed to the mess.
+         Fix: scale the substring score by key length so the more specific,
+         longer match always beats a short alias. */
+      else if(k.length>=3 && q.includes(k)) s=Math.max(s, 420 + Math.min(120, k.length*8));
+      else { const v=sim(q,k); if(v>=0.72) s=Math.max(s,Math.round(320*v)); }
+      // token overlap + fuzzy tokens (handles "s j a", "silber jubilee", etc.)
+      const kTok=k.split(" ");
+      let hits=0;
+      for(const qt of qTokens){ if(kTok.some(kt=> kt===qt || (qt.length>=4 && sim(qt,kt)>=0.75))) hits++; }
+      /* Bonus for how much of what the user SAID the key accounts for.
+         Without it, "lecture hall complex D" scored the same against
+         "lecture hall complex" (LHC B) as against "lecture hall complex D" (LHC D),
+         and LHC B won purely by sitting earlier in the list. */
+      if(hits){
+        const cover = hits / Math.max(1, qTokens.length);
+        s = Math.max(s, 340 + 60*hits + Math.round(120*cover));
+      }
+    }
+    if(s>bestScore){ bestScore=s; best=p; }
+  }
+  return bestScore>=300 ? best : null;
+}
+
+/* -------------------- 3. AUDIO (TTS + earcons) -------------------- */
+let voices=[]; function loadVoices(){ voices=speechSynthesis.getVoices(); }
+loadVoices(); speechSynthesis.onvoiceschanged=loadVoices;
+function pickVoice(){ return voices.find(v=>/en[-_]IN/i.test(v.lang)) || voices.find(v=>/en[-_]GB/i.test(v.lang)) || voices.find(v=>/^en/i.test(v.lang)) || null; }
+/* ORIGINAL BUG (serious): every command does `await speak(...)`. But the next
+   utterance calls speechSynthesis.cancel() first - and a cancelled utterance
+   often never fires `onend`, so its promise never resolved. The pending await
+   hung forever while `busy` stayed true, so the mic stopped responding and the
+   app looked frozen. Fix: resolve any superseded promise, plus a length-based
+   timeout as a hard safety net. */
+let pendingSpeak = null;
+function speak(text){
+  if(pendingSpeak){ const r = pendingSpeak; pendingSpeak = null; r(); }  // release superseded
+  const t = (text || "").trim();
+  if(!t) return Promise.resolve();
+  return new Promise(res=>{
+    let done = false, timer = null;
+    const finish = () => { if(done) return; done = true; clearTimeout(timer);
+                           if(pendingSpeak === finish) pendingSpeak = null; res(); };
+    try{
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(t);
+      const v = pickVoice(); if(v) u.voice = v;
+      u.rate = 0.98; u.pitch = 1;
+      u.onend = finish; u.onerror = finish;
+      pendingSpeak = finish;
+      timer = setTimeout(finish, Math.min(25000, 1500 + t.length * 65));
+      speechSynthesis.speak(u);
+    }catch(e){ finish(); }
+  });
+}
+
+/* iOS Safari silently ignores speechSynthesis until it has been primed inside a
+   real user gesture. Without this, auto-announcements from the GPS watcher
+   (which fire with no gesture) never get spoken on iPhone. */
+let speechUnlocked = false;
+function unlockSpeech(){
+  if(speechUnlocked) return; speechUnlocked = true;
+  try{ const u = new SpeechSynthesisUtterance(" "); u.volume = 0; speechSynthesis.speak(u); }catch(e){}
+}
+["pointerdown","touchstart","keydown"].forEach(ev =>
+  document.addEventListener(ev, unlockSpeech, { once:true, passive:true }));
+
+let actx=null;
+function beep(freq,dur=0.12,type="sine",gain=0.15){
+  try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    const o=actx.createOscillator(), g=actx.createGain();
+    o.type=type; o.frequency.value=freq; g.gain.value=gain;
+    o.connect(g); g.connect(actx.destination);
+    o.start(); g.gain.exponentialRampToValueAtTime(0.001, actx.currentTime+dur); o.stop(actx.currentTime+dur);
+  }catch(e){} }
+const beepListen =()=>{ beep(880,.1); setTimeout(()=>beep(1320,.12),110); };
+const beepDone   =()=>{ beep(660,.1); setTimeout(()=>beep(440,.14),110); };
+
+/* -------------------- 3b. HAPTICS - Morse-style vibration feedback --------------------
+   Blind and low-vision users often navigate with earphones in one ear or in noisy
+   outdoor areas, so every important event also gets a distinct vibration pattern
+   built from short (dot) and long (dash) pulses, the same units used in Morse code.
+   Patterns are arrays of alternating [vibrate, pause, vibrate, pause, ...] ms. */
+const DOT=90, DASH=230, GAP=110, LGAP=260;
+const MORSE={
+  LISTEN:      [DOT],                                   // "E" - I'm listening now
+  ROUTE_FOUND: [DASH,GAP,DOT],                           // "N" - a route was found
+  TURN_LEFT:   [DOT,GAP,DASH],                           // "A" - turn left
+  TURN_RIGHT:  [DASH,GAP,DOT,GAP,DOT],                   // "D" - turn right
+  STRAIGHT:    [DOT,GAP,DOT],                            // "I" - continue straight
+  UTURN:       [DASH,GAP,DASH],                          // "M" - u-turn
+  ARRIVED:     [DASH,GAP,DASH,GAP,DASH],                 // "O" - arrived at destination
+  OFF_ROUTE:   [DOT,GAP,DOT,GAP,DOT,LGAP,DOT,GAP,DOT,GAP,DOT], // repeated "S" - off route, pay attention
+  ERROR:       [DOT,GAP,DOT,GAP,DOT,LGAP,DASH,GAP,DASH,GAP,DASH,LGAP,DOT,GAP,DOT,GAP,DOT], // "S O S"
+  STOP:        [DASH],                                   // "T" - stopped
+  WAKE:        [40]                                      // tiny tick - wake word heard
+};
+const HAS_NATIVE_VIBRATE = ('vibrate' in navigator);
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+let hapticWanted = HAS_NATIVE_VIBRATE || IS_IOS;
+
+/* iOS Safari has no Vibration API at all. But toggling a hidden
+   <input type="checkbox" switch> through its <label> fires a genuine
+   system haptic - one short blip per call. It only has user-activation
+   for the FIRST call, so multi-pulse Morse patterns degrade to a single
+   leading blip on iPhone. Android gets the full pattern. */
+function iosHapticTick(){
+  try{
+    const id = 'hx' + Math.random().toString(36).slice(2);
+    const el = document.createElement('div');
+    el.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;pointer-events:none;';
+    el.innerHTML = `<input type="checkbox" id="${id}" switch><label for="${id}"></label>`;
+    document.body.appendChild(el);
+    el.querySelector('label').click();
+    setTimeout(() => el.remove(), 900);
+    return true;
+  }catch(e){ return false; }
+}
+
+function vibrate(nameOrPattern){
+  if(!hapticWanted) return;
+  const p = Array.isArray(nameOrPattern) ? nameOrPattern : (MORSE[nameOrPattern]||null);
+  if(!p) return;
+  const seq = Array.isArray(p) ? p.slice() : [p];
+
+  if(HAS_NATIVE_VIBRATE){ try{ navigator.vibrate(seq); }catch(e){} return; }
+
+  if(IS_IOS){
+    // Fire a blip at the start of each "on" pulse. Only the first (delay 0)
+    // is guaranteed to land, because later ones lose user activation.
+    let t = 0;
+    for(let i = 0; i < seq.length; i += 2){
+      const d = t; setTimeout(() => iosHapticTick(), d);
+      t += (seq[i] || 0) + (seq[i+1] || 0);
+    }
+  }
+}
+/* Map an OSRM maneuver (type + modifier) to the right Morse pattern for a step. */
+function vibrateForManeuver(maneuver){
+  if(!maneuver) return;
+  const type=maneuver.type, mod=maneuver.modifier||"";
+  if(type==="arrive"){ vibrate("ARRIVED"); return; }
+  if(type==="depart"){ vibrate("STRAIGHT"); return; }
+  if(mod.includes("uturn")){ vibrate("UTURN"); }
+  else if(mod.includes("left")){ vibrate("TURN_LEFT"); }
+  else if(mod.includes("right")){ vibrate("TURN_RIGHT"); }
+  else{ vibrate("STRAIGHT"); }
+}
+
+/* -------------------- 4. MAP --------------------
+   ORIGINAL BUG (critical): if Leaflet failed to load - offline, CDN blocked,
+   flaky network - `L.map(...)` threw and killed the ENTIRE script. Voice,
+   routing, haptics: all dead. For a blind user the map is a nice-to-have for
+   sighted helpers, so it must never be able to break the voice experience.
+   Fix: if Leaflet is missing, swap in a chainable no-op stub and hide the map. */
+if (typeof L === "undefined") {
+  const chain = new Proxy({}, { get: () => () => chain });   // swallows any call chain
+  window.L = new Proxy({}, { get: () => () => chain });
+  const mw = document.querySelector(".mapwrap");
+  if (mw) mw.style.display = "none";
+  document.documentElement.classList.add("no-map");
+}
+const map = (() => { try { return L.map('map',{zoomControl:true}).setView(CAMPUS_CENTER,16); }
+                     catch(e){ const mw=document.querySelector(".mapwrap"); if(mw) mw.style.display="none"; return null; } })();
+if(map){
+  try{
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap contributors'}).addTo(map);
+    PLACES.forEach(p=>{ L.circleMarker([p.lat,p.lng],{radius:4,color:'#39d98a',weight:1.5,fillOpacity:.7}).addTo(map).bindTooltip(p.name); });
+  }catch(e){}
+}
+let routeLayer=null, markA=null, markB=null, meMark=null;
+function mkPin(label,color){ return L.divIcon({className:'', html:`<div style="width:28px;height:28px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:${color};border:2px solid #fff;display:flex;align-items:center;justify-content:center"><span style="transform:rotate(45deg);color:#fff;font-weight:700;font-size:13px">${label}</span></div>`, iconSize:[28,28], iconAnchor:[14,28]}); }
+
+/* -------------------- 5. ROUTING (OSRM, real pedestrian routes) -------------------- */
+const OSRM="https://routing.openstreetmap.de/routed-foot";
+function haversine(a,b){ const R=6371000,rad=x=>x*Math.PI/180;
+  const dLat=rad(b[0]-a[0]), dLng=rad(b[1]-a[1]);
+  const h=Math.sin(dLat/2)**2 + Math.cos(rad(a[0]))*Math.cos(rad(b[0]))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h)); }
+const fmtM = m => m>=950 ? (m/1000).toFixed(1)+" kilometres" : Math.max(5,Math.round(m/5)*5)+" metres";
+const compass = b => ["north","north-east","east","south-east","south","south-west","west","north-west"][Math.round(((b%360)+360)%360/45)%8];
+
+function stepSentence(s,i,total,destName){
+  const name=s.name && s.name.trim()? s.name : "";
+  const on = name? ` on ${name}` : "";
+  const onto = name? ` onto ${name}` : "";
+  const d = s.distance>2? `, then walk ${fmtM(s.distance)}` : "";
+  const m=s.maneuver, mod=(m.modifier||"").replace("uturn","u-turn");
+  switch(m.type){
+    case "depart": return `Head ${compass(m.bearing_after)}${on}${d}.`;
+    case "arrive": { const side = mod && mod!=="straight" ? ` It is on your ${mod}.` : "";
+      return `You have arrived at ${destName}.${side}`; }
+    case "turn": case "end of road": case "fork": case "exit rotary": case "exit roundabout":
+      return `Turn ${mod||"ahead"}${onto}${d}.`;
+    case "new name": case "continue":
+      return mod && mod!=="straight" ? `Continue ${mod}${onto}${d}.` : `Continue straight${on||" ahead"}${d}.`;
+    case "roundabout": case "rotary": return `At the roundabout, take the exit${onto}${d}.`;
+    default: return `${mod?`Go ${mod}`:"Continue"}${onto}${d}.`;
+  }
+}
+
+async function fetchRoute(from,to,destName){
+  const url=`${OSRM}/route/v1/foot/${from.lng},${from.lat};${to.lng},${to.lat}?overview=full&geometries=geojson&steps=true`;
+  const r=await fetch(url); if(!r.ok) throw new Error("routing service unavailable");
+  const d=await r.json(); if(d.code!=="Ok"||!d.routes?.length) throw new Error("no route found");
+  const rt=d.routes[0];
+  const steps=rt.legs[0].steps.map((s,i,arr)=>({
+    text:stepSentence(s,i,arr.length,destName),
+    dist:s.distance,
+    loc:[s.maneuver.location[1], s.maneuver.location[0]],
+    maneuver:{type:s.maneuver.type, modifier:s.maneuver.modifier||""}
+  }));
+  return { distance:rt.distance, duration:rt.distance/1.1, /* ~1.1 m/s cautious walking */
+           geometry:rt.geometry.coordinates.map(c=>[c[1],c[0]]), steps };
+}
+
+/* -------------------- 6. APP STATE -------------------- */
+const S={ route:null, from:null, to:null, stepIdx:0, live:false, watchId:null, offCount:0, pendingDest:false };
+const $=id=>document.getElementById(id);
+const statusEl=$("status"), transEl=$("transcript"), errEl=$("err"), micBtn=$("micBtn");
+
+function setStatus(t,cls){ statusEl.textContent=t; micBtn.className="micbtn"+(cls?" "+cls:""); }
+
+function renderRoute(){
+  const has=!!S.route;
+  $("routeCard").hidden=!has;
+  if(!has){ if(routeLayer){map.removeLayer(routeLayer);routeLayer=null;} if(markA){map.removeLayer(markA);markA=null;} if(markB){map.removeLayer(markB);markB=null;} return; }
+  $("routeNames").textContent=`${S.from.name} → ${S.to.name}`;
+  $("routeMeta").textContent=`${fmtM(S.route.distance).replace(" metres"," m").replace(" kilometres"," km")} · ${Math.max(1,Math.round(S.route.duration/60))} min walk`;
+  $("stepNum").textContent=`Step ${S.stepIdx+1} of ${S.route.steps.length}`;
+  $("stepText").textContent=S.route.steps[S.stepIdx].text;
+  $("livePill").hidden=!S.live;
+  $("btnLive").textContent=S.live?"Pause GPS":"Start GPS";
+  const ol=$("stepsList"); ol.innerHTML="";
+  S.route.steps.forEach((st,i)=>{ const li=document.createElement("li"); li.textContent=st.text; if(i===S.stepIdx) li.className="cur"; ol.appendChild(li); });
+  if(map){   // map is optional - never let drawing break navigation
+    if(routeLayer) map.removeLayer(routeLayer);
+    routeLayer=L.polyline(S.route.geometry,{color:"#39d98a",weight:5,opacity:.85}).addTo(map);
+    if(markA) map.removeLayer(markA); if(markB) map.removeLayer(markB);
+    markA=L.marker([S.from.lat,S.from.lng],{icon:mkPin("A","#4da3ff")}).addTo(map).bindTooltip(S.from.name);
+    markB=L.marker([S.to.lat,S.to.lng],{icon:mkPin("B","#e2554d")}).addTo(map).bindTooltip(S.to.name);
+    try{ map.fitBounds(routeLayer.getBounds(),{padding:[36,36]}); }catch(e){}
+  }
+}
+
+/* -------------------- 7. GEOLOCATION -------------------- */
+function getPosition(){ return new Promise((res,rej)=>{
+  if(!navigator.geolocation) return rej(new Error("no geolocation"));
+  navigator.geolocation.getCurrentPosition(p=>res(p), e=>rej(e), {enableHighAccuracy:true, timeout:12000, maximumAge:5000}); }); }
+
+function nearestPlace(lat,lng){
+  let best=null,bd=1e9;
+  for(const p of PLACES){ const d=haversine([lat,lng],[p.lat,p.lng]); if(d<bd){bd=d;best=p;} }
+  return {place:best, dist:bd};
+}
+
+function updateMe(lat,lng){
+  if(!map) return;
+  try{
+    if(!meMark) meMark=L.circleMarker([lat,lng],{radius:8,color:"#fff",weight:2,fillColor:"#4da3ff",fillOpacity:1}).addTo(map).bindTooltip("You");
+    else meMark.setLatLng([lat,lng]);
+  }catch(e){}
+}
+
+function minDistToRoute(lat,lng){
+  let bd=1e9; const g=S.route.geometry;
+  for(let i=0;i<g.length;i+=Math.max(1,Math.floor(g.length/200))){ const d=haversine([lat,lng],g[i]); if(d<bd) bd=d; }
+  return bd;
+}
+
+function startLive(){
+  if(!S.route || !navigator.geolocation) return;
+  S.live=true; S.offCount=0; renderRoute();
+  speak(`Live guidance started. ${S.route.steps[S.stepIdx].text}`);
+  S.watchId=navigator.geolocation.watchPosition(async p=>{
+    const {latitude:lat, longitude:lng}=p.coords;
+    updateMe(lat,lng);
+    if(!S.route) return;
+    // arrived?
+    const dEnd=haversine([lat,lng],[S.to.lat,S.to.lng]);
+    if(dEnd<18){ beepDone(); vibrate("ARRIVED"); await speak(`You have arrived at ${S.to.name}.`); stopNav(false); return; }
+    // advance step when close to next maneuver
+    const nextIdx=Math.min(S.stepIdx+1, S.route.steps.length-1);
+    const dNext=haversine([lat,lng],S.route.steps[nextIdx].loc);
+    if(nextIdx>S.stepIdx && dNext<16){
+      S.stepIdx=nextIdx; renderRoute(); beep(990,.08); vibrateForManeuver(S.route.steps[S.stepIdx].maneuver);
+      speak(S.route.steps[S.stepIdx].text);
+      return;
+    }
+    // off-route detection → reroute
+    const off=minDistToRoute(lat,lng);
+    if(off>35){ S.offCount++; } else S.offCount=0;
+    if(S.offCount>=3){
+      S.offCount=0;
+      vibrate("OFF_ROUTE");
+      await speak("You seem to be off the route. Recalculating.");
+      try{
+        const from={id:"me",name:"your location",lat,lng};
+        S.route=await fetchRoute(from,S.to,S.to.name); S.from=from; S.stepIdx=0; renderRoute();
+        speak(S.route.steps[0].text);
+      }catch(e){}
+    }
+  }, e=>{ errEl.textContent="GPS error: "+e.message; }, {enableHighAccuracy:true, maximumAge:2000, timeout:15000});
+}
+function pauseLive(){ S.live=false; if(S.watchId!=null){navigator.geolocation.clearWatch(S.watchId);S.watchId=null;} renderRoute(); }
+function stopNav(announce=true){ pauseLive(); S.route=null; S.stepIdx=0; renderRoute(); if(announce){ vibrate("STOP"); speak("Navigation stopped."); } setStatus("Tap to speak"); }
+
+/* -------------------- 8. INTENT PARSING -------------------- */
+const HELP_TEXT="You can say: take me to a place, for example, take me to the mess, or navigate to S J A from the library. During navigation say next, repeat, or stop. Say start, to begin live G P S guidance. Say where am I, to hear your current location. Say list places, to hear all destinations. If your phone supports vibration, you will also feel a short buzz pattern for each turn, and three long buzzes when you arrive.";
+
+async function buildRoute(fromPlace,toPlace){
+  setStatus("Finding route…","thinking");
+  try{
+    let from=fromPlace;
+    if(!from){
+      await speak(`Getting your location to route to ${toPlace.name}.`);
+      try{ const p=await getPosition(); from={id:"me",name:"your location",lat:p.coords.latitude,lng:p.coords.longitude}; updateMe(from.lat,from.lng); }
+      catch(e){ from=PLACES.find(p=>p.id==="main-gate"); await speak("I could not access G P S, so I will start from the Main Gate."); }
+    }
+    S.route=await fetchRoute(from,toPlace,toPlace.name);
+    S.from=from; S.to=toPlace; S.stepIdx=0; S.live=false; renderRoute();
+    vibrate("ROUTE_FOUND");
+    const mins=Math.max(1,Math.round(S.route.duration/60));
+    const summary=`Route found from ${from.name} to ${toPlace.name}. Total distance ${fmtM(S.route.distance)}, about ${mins} minute${mins>1?"s":""} walking, in ${S.route.steps.length} steps. ${S.route.steps[0].text} Say next for the next step, or say start for live guidance.`;
+    setStatus("Navigating","speaking"); await speak(summary); setStatus("Tap to speak");
+  }catch(e){
+    setStatus("Tap to speak"); errEl.textContent="Routing failed: "+e.message;
+    vibrate("ERROR");
+    await speak("Sorry, I could not find a route. Please try again.");
+  }
+}
+
+async function handleCommand(raw){
+  errEl.textContent="";
+  const t=norm(raw);
+  if(!t){ vibrate("ERROR"); await speak("I didn't catch that. Please try again."); setStatus("Tap to speak"); return; }
+  transEl.textContent=`“${raw}”`;
+
+  // follow-up: we asked "where to?"
+  if(S.pendingDest){ S.pendingDest=false; const p=findPlace(t); if(p){ await buildRoute(null,p); return; } }
+
+  if(/\b(stop|cancel|quit|end navigation|exit)\b/.test(t)){ stopNav(); return; }
+  if(/\b(next|continue|then what|after that|go on)\b/.test(t)){
+    if(!S.route){ vibrate("ERROR"); await speak("There is no active route. Say, take me to a place."); return; }
+    S.stepIdx=Math.min(S.stepIdx+1,S.route.steps.length-1); renderRoute();
+    vibrateForManeuver(S.route.steps[S.stepIdx].maneuver);
+    await speak(S.route.steps[S.stepIdx].text); return;
+  }
+  if(/\b(repeat|again|say that again|pardon|what)\b/.test(t) && S.route){
+    vibrateForManeuver(S.route.steps[S.stepIdx].maneuver);
+    await speak(S.route.steps[S.stepIdx].text); return;
+  }
+  if(/\b(start|begin|resume)\b/.test(t) && S.route && !S.live){ startLive(); return; }
+  if(/\b(pause)\b/.test(t) && S.live){ pauseLive(); await speak("Live guidance paused."); return; }
+  if(/\bhelp\b|what can you do|how do i/.test(t)){ await speak(HELP_TEXT); return; }
+  if(/where am i|my location|current location/.test(t)){
+    try{ const p=await getPosition(); updateMe(p.coords.latitude,p.coords.longitude);
+      const n=nearestPlace(p.coords.latitude,p.coords.longitude);
+      await speak(n.dist<30? `You are at ${n.place.name}.` : `You are about ${fmtM(n.dist)} from ${n.place.name}.`);
+    }catch(e){ vibrate("ERROR"); await speak("Sorry, I could not access your location. Please allow location permission."); }
+    return;
+  }
+  if(/list places|what places|destinations|where can/.test(t)){
+    await speak("Available places include: "+PLACES.map(p=>p.name).join(", ")); return;
+  }
+
+  // navigation phrases
+  let from=null,to=null,m;
+  if((m=t.match(/from (.+?) to (.+)/)))      { from=findPlace(m[1]); to=findPlace(m[2]); }
+  else if((m=t.match(/(?:take me|navigate|directions|route|walk|go|going|get)\s*(?:me)?\s*to (.+?)(?: from (.+))?$/))){ to=findPlace(m[1]); if(m[2]) from=findPlace(m[2]); }
+  else if((m=t.match(/(.+?) to (.+)/)))      { from=findPlace(m[1]); to=findPlace(m[2]); if(!from){ to=to||findPlace(m[2]); } }
+  else                                        { to=findPlace(t); }
+
+  if(to){ await buildRoute(from,to); return; }
+
+  S.pendingDest=true;
+  vibrate("ERROR");
+  await speak("Sorry, I didn't recognise that place. Where would you like to go?");
+  setStatus("Tap to speak");
+}
+
+/* -------------------- 9. SPEECH RECOGNITION -------------------- */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let busy=false, micGranted=false;
+
+const SR_ERR={
+  "not-allowed":"Microphone blocked. Click the 🔒/mic icon in the address bar and allow the microphone. If this page is inside a preview frame, open it in its own tab.",
+  "service-not-allowed":"Speech service blocked by the browser. Open this page in its own tab in Chrome or Edge.",
+  "network":"Speech recognition needs internet (it uses an online service). Check your connection.",
+  "audio-capture":"No microphone found. Plug in or enable a mic.",
+  "no-speech":"I didn't hear anything. Tap the mic and speak right after the beep.",
+  "aborted":""
+};
+
+async function ensureMic(){
+  if(micGranted) return true;
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    stream.getTracks().forEach(t=>t.stop());
+    micGranted=true; errEl.textContent=""; return true;
+  }catch(e){
+    errEl.textContent=SR_ERR["not-allowed"];
+    vibrate("ERROR");
+    await speak("I need microphone access. Please allow the microphone, or open this page in its own browser tab.");
+    return false;
+  }
+}
+
+function listenOnce(){ return new Promise((resolve)=>{
+  if(!SR) return resolve({text:null,error:"unsupported"});
+  const r=new SR(); r.lang="en-IN"; r.continuous=false; r.interimResults=true; r.maxAlternatives=3;
+  let final="", errCode=null, done=false;
+  const finish=()=>{ if(done) return; done=true; try{r.stop();}catch(e){} resolve({text:final.trim(),error:errCode}); };
+  r.onresult=e=>{
+    let interim="";
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      if(e.results[i].isFinal) final+=e.results[i][0].transcript+" ";
+      else interim+=e.results[i][0].transcript;
+    }
+    transEl.textContent="“"+(final||interim)+"”";
+  };
+  r.onend=finish;
+  r.onerror=e=>{ errCode=e.error||"unknown"; finish(); };
+  try{ r.start(); }catch(e){ errCode="start-failed"; finish(); }
+  setTimeout(finish, 9000);
+});}
+
+async function captureAndHandle(prefill){
+  if(busy) return; busy=true;
+  wakePause();
+  try{
+    speechSynthesis.cancel();
+    let text=prefill;
+    if(!text){
+      if(!SR){ vibrate("ERROR"); errEl.textContent="This browser has no speech recognition. Use Chrome or Edge, or type a command below."; return; }
+      if(!(await ensureMic())) return;
+      beepListen(); vibrate("LISTEN"); setStatus("Listening…","listening"); transEl.textContent="";
+      const res=await listenOnce();
+      beepDone();
+      text=res.text;
+      if(!text && res.error && SR_ERR[res.error]!==""){
+        const msg=SR_ERR[res.error]||("Speech error: "+res.error);
+        errEl.textContent=msg; setStatus("Tap to speak");
+        vibrate("ERROR");
+        await speak(res.error==="no-speech" ? "I didn't hear anything. Please try again." : "Voice input failed. "+ (res.error==="network"?"Please check your internet connection.":"Please check microphone permission, or type your command."));
+        return;
+      }
+    }
+    setStatus("Thinking…","thinking");
+    await handleCommand(text||"");
+    if(!statusEl.textContent.startsWith("Navigating")) setStatus("Tap to speak");
+  } finally { busy=false; wakeResume(); }
+}
+
+/* wake word */
+let wakeRec=null, wakeWanted=false, wakePaused=false;
+const WAKE=/\b(clarity|clarify|charity|claritee|klarity)\b/i;
+function wakeStart(){
+  if(!SR || wakeRec || !wakeWanted || wakePaused) return;
+  const r=new SR(); r.lang="en-IN"; r.continuous=true; r.interimResults=true;
+
+  /* ORIGINAL BUG: with interimResults on, the wake word almost always matched an
+     INTERIM result, so `isFinal` was false and the command after it ("Clarity take
+     me to SJA") was thrown away - the user was asked to repeat it every single
+     time. Fix: latch the wake, keep the longest command text seen, then fire on
+     the finalised result - or after 900 ms if no finalisation ever arrives. */
+  let armed=null;
+  const fireWake=()=>{
+    if(!armed) return;
+    const {rest,timer}=armed; armed=null; if(timer) clearTimeout(timer);
+    try{r.stop();}catch(ex){}
+    wakeRec=null;
+    const words=rest.split(/\s+/).filter(Boolean);
+    if(words.length>=2) captureAndHandle(rest);   // "Clarity take me to SJA"
+    else captureAndHandle(null);                  // bare wake word → listen for command
+  };
+
+  r.onresult=e=>{
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const txt=e.results[i][0].transcript;
+      if(!WAKE.test(txt)) continue;
+      const rest=txt.replace(WAKE," ").replace(/\s+/g," ").trim();
+      if(!armed){ vibrate("WAKE"); armed={rest:"",timer:null}; wakeRec=r; }
+      if(rest.length>armed.rest.length) armed.rest=rest;
+      if(e.results[i].isFinal) fireWake();
+      else if(!armed.timer) armed.timer=setTimeout(fireWake,900);
+      return;
+    }
+  };
+  r.onend=()=>{ if(armed) fireWake(); wakeRec=null; if(wakeWanted&&!wakePaused) setTimeout(wakeStart,250); };
+  r.onerror=()=>{};
+  try{ r.start(); wakeRec=r; }catch(e){ wakeRec=null; }
+}
+function wakePause(){ wakePaused=true; if(wakeRec){ try{wakeRec.stop();}catch(e){} wakeRec=null; } }
+function wakeResume(){ wakePaused=false; if(wakeWanted) setTimeout(wakeStart,300); }
+
+/* -------------------- 10. UI WIRING -------------------- */
+micBtn.addEventListener("click",()=>captureAndHandle(null));
+$("wakeToggle").addEventListener("change",async e=>{
+  wakeWanted=e.target.checked;
+  if(wakeWanted){
+    if(!SR){ e.target.checked=false; wakeWanted=false; errEl.textContent="Wake word needs Chrome or Edge."; return; }
+    if(!(await ensureMic())){ e.target.checked=false; wakeWanted=false; return; }
+    wakeStart(); speak("Wake word on. Say Clarity anytime."); $("wakeDesc").innerHTML='Listening for <b>“Clarity”</b>…';
+  }
+  else { wakePause(); wakePaused=false; speak("Wake word off."); $("wakeDesc").innerHTML='Say <b>“Clarity”</b> anytime to start hands-free'; }
+});
+$("hapticToggle").addEventListener("change",e=>{
+  hapticWanted = e.target.checked && (HAS_NATIVE_VIBRATE || IS_IOS);
+  if(hapticWanted) vibrate("STRAIGHT");
+});
+$("typeForm").addEventListener("submit",e=>{
+  e.preventDefault();
+  const v=$("typeInput").value.trim();
+  if(!v) return;
+  $("typeInput").value="";
+  captureAndHandle(v);
+});
+$("btnNext").addEventListener("click",()=>handleCommand("next"));
+$("btnRepeat").addEventListener("click",()=>handleCommand("repeat"));
+$("btnStop").addEventListener("click",()=>stopNav());
+$("btnLive").addEventListener("click",()=>{ if(S.live){ pauseLive(); speak("Live guidance paused."); } else startLive(); });
+$("btnAllSteps").addEventListener("click",()=>{
+  const el=$("allSteps"); el.classList.toggle("open");
+  $("btnAllSteps").textContent=el.classList.contains("open")?"Hide all steps ▴":"Show all steps ▾";
+});
+document.addEventListener("keydown",e=>{
+  if(e.target.tagName==="SELECT"||e.target.tagName==="INPUT") return;
+  if(e.code==="Space"){ e.preventDefault(); captureAndHandle(null); }
+  else if(e.key==="n"||e.key==="N") handleCommand("next");
+  else if(e.key==="r"||e.key==="R") handleCommand("repeat");
+  else if(e.key==="Escape") stopNav();
+});
+
+/* manual selects */
+const fromSel=$("fromSel"), toSel=$("toSel");
+[...PLACES].sort((a,b)=>a.name.localeCompare(b.name)).forEach(p=>{
+  fromSel.appendChild(new Option(p.name,p.id));
+  toSel.appendChild(new Option(p.name,p.id));
+});
+$("btnGo").addEventListener("click",()=>{
+  const to=PLACES.find(p=>p.id===toSel.value); if(!to) return;
+  const from=PLACES.find(p=>p.id===fromSel.value)||null;
+  buildRoute(from,to);
+});
+
+/* -------------------- 11. STARTUP DIAGNOSTICS -------------------- */
+(function diagnoseHaptics(){
+  const note = $("hapticNote");
+  if(HAS_NATIVE_VIBRATE){
+    note.textContent="Uses short Morse-style buzzes: e.g. dot-dash for left, dash-dot-dot for right, three long buzzes on arrival.";
+  } else if(IS_IOS){
+    // Leave the toggle ON and usable - we have the switch-haptic fallback.
+    note.textContent="iPhone detected: Safari has no real Vibration API, so patterns fall back to a single system blip per event (full patterns need Android Chrome). Sound and speech still guide you.";
+  } else {
+    hapticWanted=false;
+    $("hapticToggle").checked=false;
+    $("hapticToggle").disabled=true;
+    note.textContent="Vibration isn't supported on this device/browser. Sound and speech will still guide you.";
+  }
+})();
+(function diagnose(){
+  if(!window.isSecureContext){
+    setStatus("Voice needs HTTPS");
+    errEl.textContent="This page is not on HTTPS, so the browser blocks the microphone. Open the HTTPS link (e.g. your Vercel URL). Typing commands still works.";
+    return;
+  }
+  if(!SR){
+    setStatus("Voice not supported here");
+    errEl.textContent=/firefox/i.test(navigator.userAgent)
+      ? "Firefox doesn't support speech recognition. Use Chrome or Edge, or type commands below."
+      : "This browser has no speech recognition. Use Chrome or Edge, or type commands below.";
+    return;
+  }
+  // (the iframe / HTTPS warning now lives in the top banner, section 11b)
+  if(navigator.permissions?.query){
+    navigator.permissions.query({name:"microphone"}).then(p=>{
+      if(p.state==="denied") errEl.textContent=SR_ERR["not-allowed"];
+      else if(p.state==="granted") micGranted=true;
+    }).catch(()=>{});
+  }
+})();
+
+/* -------------------- 11b. APP INSTALL + PERMISSION ONBOARDING --------------------
+   "It asks for the mic but no option comes up" is almost always one of three
+   things, and none of them produce a visible prompt:
+     1. The page is inside an <iframe>  -> browsers hard-block getUserMedia
+     2. Not on HTTPS                    -> navigator.mediaDevices is undefined
+     3. Permission was dismissed once   -> Chrome silently denies forever after
+   So: detect all three, say which one it is, and give a real way out. */
+const isStandalone = window.matchMedia("(display-mode: standalone)").matches ||
+                     window.navigator.standalone === true;
+const inFrame = window.self !== window.top;
+
+function setPerm(name, kind, label){
+  const host = $("permState");
+  let c = host.querySelector('[data-p="' + name + '"]');
+  if(!c){ c = document.createElement("span"); c.dataset.p = name; host.appendChild(c); }
+  c.className = "pchip" + (kind ? " " + kind : "");
+  c.textContent = name + ": " + label;
+}
+
+(function contextGate(){
+  const b = $("ctxBannerTop"), m = $("ctxBannerMsg"), newTab = $("btnNewTab");
+  if(inFrame){
+    m.innerHTML = "<b>Microphone is blocked here.</b> Clarity is running inside a preview frame, so the browser will not show a permission prompt. Open it in its own tab first.";
+    b.hidden = false;
+  } else if(!window.isSecureContext){
+    m.innerHTML = "<b>The microphone needs HTTPS.</b> Browsers only offer microphone access on a secure connection. Open the <code>https://</code> address for this site.";
+    b.hidden = false; newTab.hidden = true;
+  } else {
+    newTab.hidden = true; b.hidden = true;
+  }
+  newTab.addEventListener("click", ()=> window.open(location.href, "_blank", "noopener"));
+})();
+
+/* Install (Android/Chrome). iOS has no beforeinstallprompt, so it gets instructions. */
+let deferredPrompt = null;
+const btnInstall = $("btnInstall");
+window.addEventListener("beforeinstallprompt", e=>{
+  e.preventDefault();
+  deferredPrompt = e;
+  btnInstall.hidden = false;
+});
+window.addEventListener("appinstalled", ()=>{
+  deferredPrompt = null;
+  btnInstall.hidden = true;
+  $("iosInstall").hidden = true;
+  $("installNote").textContent = "Clarity is installed. Open it from your home screen.";
+});
+btnInstall.addEventListener("click", async ()=>{
+  if(!deferredPrompt){ $("iosInstall").hidden = false; return; }
+  try{
+    deferredPrompt.prompt();
+    const choice = await deferredPrompt.userChoice;
+    if(choice && choice.outcome === "accepted") $("installNote").textContent = "Installing Clarity…";
+  }catch(e){}
+  deferredPrompt = null;
+  btnInstall.hidden = true;
+});
+if(IS_IOS && !window.navigator.standalone) $("iosInstall").hidden = false;
+if(isStandalone){
+  btnInstall.hidden = true;
+  $("iosInstall").hidden = true;
+  $("installNote").textContent = "Running as an installed app.";
+}
+
+/* Microphone. getUserMedia is called synchronously in the click handler (no await
+   before it) because iOS Safari drops user activation across a microtask, and a
+   permission request without activation is refused with no prompt at all. */
+$("btnEnableMic").addEventListener("click", ()=>{
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    setPerm("microphone", "bad", "needs HTTPS");
+    errEl.textContent = "This page is not on a secure https:// connection, so the browser hides the microphone option entirely.";
+    return;
+  }
+  navigator.mediaDevices.getUserMedia({audio:true}).then(stream=>{
+    stream.getTracks().forEach(t=>t.stop());   // just probing permission
+    micGranted = true;
+    setPerm("microphone", "ok", "granted");
+    errEl.textContent = "";
+    vibrate("LISTEN");
+    speak("Microphone is on. Tap the big button and speak.");
+  }).catch(e=>{
+    const msg = {
+      NotAllowedError : "Permission was dismissed. Tap Enable microphone again and choose Allow. On iPhone, reload the page after allowing.",
+      NotFoundError   : "No microphone found on this device.",
+      SecurityError   : "Blocked by the browser. Check that the address starts with https:// and that you are not inside a preview frame.",
+      NotReadableError: "The microphone is busy in another app. Close it and try again."
+    }[e.name] || (e.name + ": " + e.message);
+    setPerm("microphone", "bad", e.name === "NotAllowedError" ? "blocked" : "error");
+    errEl.textContent = msg;
+    vibrate("ERROR");
+  });
+});
+
+$("btnEnableLoc").addEventListener("click", ()=>{
+  if(!navigator.geolocation){ setPerm("location", "bad", "unsupported"); return; }
+  navigator.geolocation.getCurrentPosition(
+    p=>{
+      setPerm("location", "ok", "granted");
+      updateMe(p.coords.latitude, p.coords.longitude);
+      speak("Location is on.");
+    },
+    e=>{
+      setPerm("location", "bad", e.code === 1 ? "blocked" : "error");
+      errEl.textContent = e.code === 1
+        ? "Location blocked. Allow it for this site in your browser settings, then try again."
+        : "Location error: " + e.message;
+    },
+    {enableHighAccuracy:true, timeout:12000}
+  );
+});
+
+/* Show what we already know, so the user is not guessing. */
+if(navigator.permissions && navigator.permissions.query){
+  navigator.permissions.query({name:"microphone"}).then(p=>{
+    if(p.state === "granted") micGranted = true;
+    setPerm("microphone", p.state === "granted" ? "ok" : p.state === "denied" ? "bad" : "warn", p.state);
+    p.onchange = ()=> setPerm("microphone", p.state === "granted" ? "ok" : p.state === "denied" ? "bad" : "warn", p.state);
+  }).catch(()=>{});
+  navigator.permissions.query({name:"geolocation"}).then(p=>{
+    if(p.state !== "prompt") setPerm("location", p.state === "granted" ? "ok" : "bad", p.state);
+  }).catch(()=>{});
+}
+
+/* -------------------- 12. PWA: offline shell --------------------
+   Lets a user "Add to Home Screen" and open Clarity without a browser tab.
+   Guarded: a service worker requires a secure context, so this silently
+   no-ops when you're just opening the file locally over file://. */
+if(false){ /* single-file build: no sw.js alongside, skip */
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+</script>
+</body>
+</html>
